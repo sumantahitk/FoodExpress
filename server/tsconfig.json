@@ -13,6 +13,6 @@
      "experimentalDecorators": true,
      "sourceMap": true
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "mailtrap"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }
