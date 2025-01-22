@@ -2,10 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { signupInputState, userSignupSchema } from "@/schema/userSchema";
+import { useUserStore } from "@/store/useUserStore";
 // import { Label } from "@/components/ui/label";
 import { Loader2, LockKeyhole, Mail, PhoneCall, User } from "lucide-react";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 //this type declaration will be handle by ZOD 
 // type signupInputState = {
@@ -28,9 +29,10 @@ const Signup = () => {
         setInput({ ...input, [name]: value });
     }
    
-      
+    const {signup,loading} =useUserStore();
+      const navigate=useNavigate();
     
-    const signupSubmitHandler = (e: FormEvent) => {
+    const signupSubmitHandler = async (e: FormEvent) => {
         e.preventDefault();
         const result = userSignupSchema.safeParse(input);
         if (!result.success) {
@@ -38,9 +40,15 @@ const Signup = () => {
             setErrors(fieldErrors as Partial<signupInputState>);
             return;
         }//api implementation 
-        console.log(input);
+      
+        try{
+            await signup(input);
+            navigate("/verify-email");
+        }catch(error){
+            console.log(error)
+        }
     }
-    const loading = false;
+    
     return (
         <div className="flex items-center justify-center min-h-screen ">
             <form onSubmit={signupSubmitHandler} className="md:p-8 w-full max-w-md rounded-lg md:border border-gray-200 mx-4">
@@ -95,6 +103,7 @@ const Signup = () => {
                 <div className="mb-8">
                     {
                         loading ? <Button disabled className="w-full bg-orange hover:bg-hoverOrange"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Please Wait</Button> : <Button type="submit" className="w-full bg-orange hover:bg-hoverOrange">SignUp</Button>
+                      
                     }
 
                 </div>

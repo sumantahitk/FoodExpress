@@ -1,4 +1,4 @@
-import { Response, Request } from "express"
+import { Response, Request, NextFunction } from "express"
 import { User } from "../models/user.model";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -9,6 +9,9 @@ import { sendPasswordRsetEmail, sendResetSuccessEmail, sendverificationEmail, se
 
 export const signup = async (req: Request, res: Response) => {
     try {
+        console.log(req.body)
+        // console.log("Signup controller hit:", req.body);
+       
         const { fullname, email, password, contact } = req.body;
         let user = await User.findOne({ email });
         if (user) {
@@ -17,32 +20,38 @@ export const signup = async (req: Request, res: Response) => {
                 message: "User already exists with this email"
             });
         }
+       
         const hashedPassword = await bcrypt.hash(password, 10);
-
+        console.log(req.body)
         const verificationToken = generateVerificationCode();
-
+       
         user = await User.create({
             fullname,
             email,
             password: hashedPassword,
-            cantact: Number(contact),
+            contact: Number(contact),
             verificationToken,
             verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
         })
+
+       
         generateToken(res,user);
+        // console.log(user)
 //send mail for verification
         await sendverificationEmail(email,verificationToken);
-
+console.log("hi ")
         const userWithoutPassword = await User.findOne({ email }).select("-password");
+        console.log(userWithoutPassword);
         return res.status(201).json({
             success: true,
-            Message: "Account created Successfully",
+            message: "Account created Successfully",
             user: userWithoutPassword
         })
 
 
     } catch (error) {
         console.log(error);
+        
         return res.status(500).json({ message: "Error signing up user" })
     }
 }
@@ -77,7 +86,7 @@ export const login = async (req: Request, res: Response) => {
         const userWithoutPassword = await User.findOne({ email }).select("-password");
         return res.status(200).json({
             success: true,
-            Message: `Welcome back ${user.fullname}`,
+            message: `Welcome back ${user.fullname}`,
             user: userWithoutPassword
         })
 
@@ -91,6 +100,7 @@ export const login = async (req: Request, res: Response) => {
 export const verifyEmail = async (req: Request, res: Response) => {
     try {
         const { verificationCode } = req.body;
+        // console.log(verificationCode);
         const user = await User.findOne({ verificationToken: verificationCode, verificationTokenExpiresAt: { $gt: Date.now() } }).select("-password");
 
 
@@ -108,7 +118,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
         return res.status(200).json({
             success: true,
-            Message: `Email Verified successfully`,
+            message: `Email Verified successfully`,
             user,
         })
 
@@ -155,7 +165,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
         return res.status(200).json({
             success: true,
-            Message: `Password reset link sent to your email`,
+            message: `Password reset link sent to your email`,
 
         })
 

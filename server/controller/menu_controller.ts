@@ -17,7 +17,7 @@ export const addMenu = async (req: Request, res: Response) => {
         };
 
         const imageUrl = await uploadImageOnCloudinary(file as Express.Multer.File);
-        const menu = await Menu.create({
+        const menu:any = await Menu.create({
             name,
             description,
             price,

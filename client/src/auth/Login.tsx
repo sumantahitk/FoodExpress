@@ -2,10 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { LoginInputState, userLoginSchema } from "@/schema/userSchema";
+import { useUserStore } from "@/store/useUserStore";
 // import { Label } from "@/components/ui/label";
 import { Loader2, LockKeyhole, Mail } from "lucide-react";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 //typeScript me type define karneke 2 tarika hota hai....
 //1->
 // interface LoginInputState {
@@ -30,7 +31,9 @@ const Login = () => {
         const { name, value } = e.target;
         setInput({ ...input, [name]: value });
     }
-    const loginSubmitHandler = (e: FormEvent) => {
+    const {login,loading}=useUserStore();
+    const navigate=useNavigate();
+    const loginSubmitHandler =async (e: FormEvent) => {
         e.preventDefault();
         const result = userLoginSchema.safeParse(input);
         if (!result.success) {
@@ -38,9 +41,14 @@ const Login = () => {
             setErrors(fieldErrors as Partial<LoginInputState>);
         }
 
-        console.log(input);
+        try{
+            await login(input);
+            navigate("/");
+        }catch(err){
+            console.log(err);
+        }
     }
-    const loading = false;
+    
     return (
         <div className="flex items-center justify-center min-h-screen ">
             <form onSubmit={loginSubmitHandler} className="p-8 w-full max-w-md rounded-lg border border-gray-300 mx-4">
