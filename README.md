@@ -91,4 +91,4 @@ FoodExpress/
 
 ## Contact
 
-For any inquiries or feedback, please reach out to [Sumanta H](https://github.com/sumantahitk).
+For any inquiries or feedback, please reach out to [Sumanta](https://github.com/sumantahitk).
