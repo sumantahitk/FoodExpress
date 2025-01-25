@@ -2,13 +2,14 @@ import express from "express"
 
 import { isAuthenticated } from "../middlewares/isAuthenticated";
 import upload from "../middlewares/multer"
-import { addMenu, editMenu } from "../controller/menu_controller";
+import { addMenu, editMenu, getMenu } from "../controller/menu_controller";
 
 const router=express.Router();
 
-router.route("/").post(isAuthenticated as any ,upload.single("image"),addMenu as any);
+router.route("/").post(isAuthenticated as any ,upload.single("imagemenu"),addMenu as any);
 
-router.route("/:id").post(isAuthenticated as any ,upload.single("image"),editMenu as any);
+router.route("/").get(isAuthenticated as any ,getMenu as any);
+router.route("/:id").put(isAuthenticated as any ,upload.single("imagemenu"),editMenu as any);
 
 
 export default router;

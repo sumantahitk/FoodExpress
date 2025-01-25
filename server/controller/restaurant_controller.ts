@@ -5,7 +5,7 @@ import uploadImageOnCloudinary from "../utils/imageUpload";
 import { Order } from "../models/order.model";
 export const createRestaurant = async (req: Request, res: Response) => {
     try {
-        const { restaurantName, city, country, price, deliveryTime, cuisines } = req.body;
+        const { restaurantName, city, country,deliveryTime, cuisines } = req.body;
         const restaurant = await Restaurant.findOne({ user: req.id });
         const file = req.file;
 
@@ -28,7 +28,6 @@ export const createRestaurant = async (req: Request, res: Response) => {
             city,
             country,
             deliveryTime,
-            price,
             cuisines: JSON.parse(cuisines),
             image: imageUrl
         });
@@ -48,10 +47,17 @@ export const createRestaurant = async (req: Request, res: Response) => {
 export const getRestaurant = async (req: Request, res: Response) => {
 
     try {
-        const restaurant = await Restaurant.findOne({ user: req.id });
+        const restaurant = await Restaurant.findOne({ user: req.id })
+        .populate({
+            path: 'menus',
+            options: {sort:{ createdAt: -1 }}
+        });;
+
+    //   console.log(restaurant);
         if (!restaurant) {
             return res.status(404).json({
                 success: false,
+                restaurant:[],
                 message: "Restaurant not found"
             });
         };
@@ -203,11 +209,13 @@ export const searchRestaurant = async (req: Request, res: Response) => {
 
 export const getSingleRestaurant = async (req: Request, res: Response) => {
     try {
+        // console.log("hi")
         const restaurantId = req.params.id;
         const restaurant = (await Restaurant.findById(restaurantId)).populate({
             path: 'menus',
-            options: { createdAt: -1 }
+            options: {sort:{ createdAt: -1 }}
         });
+          console.log(restaurant)
         if (!restaurant) {
             return res.status(404).json({
                 success: false,

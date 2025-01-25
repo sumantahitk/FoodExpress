@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MenuFromSchema, MenuSchema } from "@/schema/MenuSchema";
+import { useMenuStore } from "@/store/useMenuStore";
 import { Loader2 } from "lucide-react";
 import { Dispatch, FormEvent, SetStateAction, useEffect, useState } from "react";
 
@@ -13,24 +14,39 @@ const EditMenu = ({ selectedMenu, editOpen, setEditOpen }: { selectedMenu: MenuF
         price: 0,
         imagemenu: undefined
     })
-    const loading = false;
+    const {loading,editMenu}=useMenuStore();
     const [errors, setErrors] = useState<Partial<MenuFromSchema>>({})
     const changeEventHandeler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type } = e.target;
         setInput({ ...input, [name]: type === 'number' ? Number(value) : value });
     }
-    const submitHandeler = (e: FormEvent<HTMLFormElement>) => {
+    const submitHandeler =async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
          const result = MenuSchema.safeParse(input);
         if (!result.success) {
             const fieldErrors = result.error.formErrors.fieldErrors;
             setErrors(fieldErrors as Partial<MenuFromSchema>);
             return;
-        }    
-        // console.log(input);
+        }   
+        
+        try{
+            const formData=new FormData();
+            formData.append('name',input.name);
+            formData.append('description',input.description);
+            formData.append('price',input.price.toString());
+           if(input.imagemenu){
+            formData.append('imagemenu',input.imagemenu);
+           }
+           await editMenu(selectedMenu?._id,formData);
+        }catch(error){
+            console.log(error);
+
+        }
+       
     }
 
     useEffect(() => {
+         console.log(selectedMenu);
         setInput({
             name: selectedMenu?.name||"",
             description: selectedMenu?.description||"",

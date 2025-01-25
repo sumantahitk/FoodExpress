@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import FilterPage from "./FilterPage";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Globe, MapPin, X } from "lucide-react";
@@ -9,10 +9,16 @@ import { Card, CardContent, CardFooter } from "./ui/card";
 import { AspectRatio } from "./ui/aspect-ratio";
 import HeroImage from "@/assets/hero_pizza.png"
 import { Skeleton } from "./ui/skeleton";
+import { useRestaurantStore } from "@/store/useRestaurantStore";
 
 const SearchText = () => {
     const params = useParams();
     const [searchQuery, setSerachQuery] = useState<string>("");
+    const {searchRestaurant,searchedRestaurant}=useRestaurantStore();
+    useEffect(()=>{
+      searchRestaurant(params.text!,searchQuery,);
+    },[]);
+
     return (
 
         <div className="max-w-7xl mx-auto my-10">

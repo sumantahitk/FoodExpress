@@ -8,6 +8,7 @@ export const addMenu = async (req: Request, res: Response) => {
     try {
         const { name, description, price } = req.body;
         const file = req.file;
+        console.log(name, description, price,file)
 
         if (!file) {
             return res.status(400).json({
@@ -26,8 +27,16 @@ export const addMenu = async (req: Request, res: Response) => {
         const restaurant = await Restaurant.findOne({ user: req.id });
         if (restaurant) {
             (restaurant.menus as mongoose.Schema.Types.ObjectId[]).push(menu._id as any);
-            await restaurant.save();
+            // await restaurant.save();
+ const updatedRestaurant = await restaurant.populate({
+    path: 'menus',
+    options: {sort:{ createdAt: -1 }}
+});
+
+        await updatedRestaurant.save();
+            console.log("Updated restaurant with populated menus:", updatedRestaurant);
         }
+       ;
         return res.status(201).json({
             success: true,
             message: "Menu added successfully"
@@ -76,3 +85,33 @@ export const editMenu = async (req: Request, res: Response) => {
         })
     }
 }
+
+
+export const getMenu = async (req: Request, res: Response) => {
+    try {
+        // Fetch the restaurant associated with the logged-in user
+        const restaurant = await Restaurant.findOne({ user: req.id }).populate({
+            path: "menus",
+            options: { sort: { createdAt: -1 } },
+        });
+
+        // If the restaurant is not found, return an error
+        if (!restaurant) {
+            return res.status(404).json({
+                success: false,
+                message: "Restaurant not found",
+            });
+        }
+
+        // Return the menus of the restaurant
+        return res.status(200).json({
+            success: true,
+            menus: restaurant.menus,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+};
