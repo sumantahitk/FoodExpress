@@ -10,13 +10,14 @@ import { Separator } from "./ui/separator";
 
 import { useUserStore } from "@/store/useUserStore";
 import { useCartStore } from "@/store/useCartStore";
+import { useThemeStore } from "@/store/useThemeStore";
 
 const Navbar = () => {
-    
 
-    const { user, loading,logout } = useUserStore();
-    const {cart} = useCartStore();
 
+    const { user, loading, logout } = useUserStore();
+    const { cart } = useCartStore();
+    const {setTheme}=useThemeStore();
     return (
         <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between h-14">
@@ -28,7 +29,7 @@ const Navbar = () => {
                         <Link to="/">Home</Link>
                         <Link to="/profile">Profile</Link>
                         <Link to="/order/status">Order</Link>
-                        <Link to="/">Home</Link>
+                        
 
                     </div>
                     {
@@ -59,10 +60,10 @@ const Navbar = () => {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem >
+                                    <DropdownMenuItem  onClick={()=>setTheme('light')} >
                                         Light
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem  onClick={()=>setTheme('dark')}>
                                         Dark
                                     </DropdownMenuItem>
 
@@ -73,7 +74,7 @@ const Navbar = () => {
                         <Link to="/cart" className="relative cursor-pointer">
                             <ShoppingCart />
                             {
-                                cart.length>0 && (
+                                cart.length > 0 && (
                                     <Button size={'icon'} className="absolute -inset-y-3 left-2 test-xs rounded-full h-4 w-4 bg-red-500 hover:bg-red-500 ">{cart.length}</Button>
                                 )
                             }
@@ -107,8 +108,9 @@ const Navbar = () => {
 export default Navbar;
 
 const MobileNavbar = () => {
-    const { user,logout,loading } = useUserStore();
-    const {cart}=useCartStore();
+    const { user, logout, loading } = useUserStore();
+    const { cart } = useCartStore();
+    const {setTheme}=useThemeStore();
     return (
 
         <Sheet>
@@ -129,10 +131,10 @@ const MobileNavbar = () => {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem >
+                            <DropdownMenuItem onClick={()=>setTheme('light')}>
                                 Light
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem  onClick={()=>setTheme('dark')}>
                                 Dark
                             </DropdownMenuItem>
 
@@ -193,7 +195,7 @@ const MobileNavbar = () => {
                         </div>
 
                         <SheetClose asChild>
-                        {
+                            {
                                 loading ? <Button className="bg-orange hover:bg-hoverOrange"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Please Wait</Button> :
                                     <Button onClick={logout} className="bg-orange hover:bg-hoverOrange">Logout
                                     </Button>

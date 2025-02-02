@@ -51,11 +51,12 @@ export const getOrders = async (req: Request, res: Response) => {
         })
     }
 }
-export const createCheckoutSeason = async (req: Request, res: Response) => {
+
+export const createCheckoutSession = async (req: Request, res: Response) => {
     try {
         const checkoutSessionRequest: CheckoutSessionRequest = req.body;
-        const restaurant = await Restaurant.findById
-            (checkoutSessionRequest.restaurantId).populate('menus');
+        const restaurant = await Restaurant.findById(checkoutSessionRequest.restaurantId).populate('menus');
+        
         if (!restaurant) {
             return res.status(404).json({
                 success: false,
@@ -63,18 +64,27 @@ export const createCheckoutSeason = async (req: Request, res: Response) => {
             });
         }
 
+        // Calculate the total amount
+        let totalAmount = 0;
+        checkoutSessionRequest.cartItems.forEach((cartItem) => {
+            const menuItem = restaurant.menus.find((item: any) => item._id.toString() === cartItem.menuId);
+            if (menuItem) {
+                totalAmount += cartItem.price * cartItem.quantity;  // Add the price * quantity for each item
+            }
+        });
+
         const order = new Order({
             restaurant: restaurant._id,
             user: req.id,
             deliveryDetails: checkoutSessionRequest.deliveryDetails,
             cartItems: checkoutSessionRequest.cartItems,
+            totalAmount: totalAmount,  // Save the totalAmount to the order
             status: "pending"
-
-        })
-        //line item
-
+        });
+// console.log(order);
         const menuItems = restaurant.menus;
-        const lineItems = createLineItems(checkoutSessionRequest, menuItems)
+        const lineItems = createLineItems(checkoutSessionRequest, menuItems);
+
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             shipping_address_collection: {
@@ -87,16 +97,18 @@ export const createCheckoutSeason = async (req: Request, res: Response) => {
             metadata: {
                 orderId: order._id.toString(),
                 images: JSON.stringify(menuItems.map((item: any) => item.image))
-
             }
         });
-        if(!session.url){
+
+        if (!session.url) {
             return res.status(400).json({
                 success: false,
                 message: "Failed to create session"
-                });
+            });
         }
-        await order.save();
+
+        await order.save();  // Save the order with the totalAmount and other details
+
         return res.status(200).json({
             success: true,
             message: "Checkout session created",
@@ -108,9 +120,10 @@ export const createCheckoutSeason = async (req: Request, res: Response) => {
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
-        })
+        });
     }
 }
+
 
 export const stripeWebhook = async (req: Request, res: Response) => {
     let event;

@@ -81,7 +81,7 @@ const orderSchema=new mongoose.Schema<Iorder>({
     },
     status:{
         type:String,
-        enum:["pending","confirmed" , "preparing" , "outForDelivery" ,"delivered"],
+        enum:["pending","confirmed" , "preparing" , "outForDelivery" ,"delivered","cancelled"],
         required:true
     },
 },{timestamps:true});

@@ -29,18 +29,7 @@ export const useOrderStore=create<OrderState>()(persist((set)=>({
 
         }
     },
-    // getOrderDetails:async()=>{
-    //     try{
-    //         set({loading:true});
-    //             const response=await axios.get(`${API_END_POINT}/`);
-    //             console.log(response.data.orders);
-    //         set({loading:false, orders:response.data.orders})
 
-    //     }catch(error){
-    //         set({loading:false})
-    //         console.log(error);
-    //     }
-    // }
     getOrderDetails: async () => {
         try {
           set({ loading: true });

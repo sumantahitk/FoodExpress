@@ -21,7 +21,7 @@ export interface Orders extends CheckoutSessionRequest
 {
     _id:string,
     status:string,
-    totalAmount:number
+    totalAmount:number;
 }
 
 export type OrderState={

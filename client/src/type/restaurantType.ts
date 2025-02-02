@@ -1,3 +1,5 @@
+import { Orders } from "./orderType";
+
 export type MenuItem = {
     _id: string;
     name: string;
@@ -26,6 +28,7 @@ export type RestaurantState={
     restaurant:Restaurant|null,
     searchedRestaurant:searchedRestaurant|null,
     appliedFilter:string[],
+    restaurantOrder:Orders[],
     singleRestaurant:Restaurant|null,
     createRestaurant:(formdata:FormData)=>Promise<void>;
     getRestaurant:()=>Promise<void>;
@@ -36,4 +39,6 @@ export type RestaurantState={
     setAppliedFilter:(value:string)=>void;
     resetAppliedFilter:()=>void;
     getSingleRestaurant:(restaurantId:string)=>Promise<void>;
+    getRestaurantOrders:()=>Promise<void>;
+    updateRestaurantOrder:(orderId:string,status:string)=>Promise<void>
 }

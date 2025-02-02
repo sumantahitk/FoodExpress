@@ -122,6 +122,7 @@ export const getRestaurantOrder = async (req: Request, res: Response) => {
         };
 
         const orders = await Order.find({ restaurant: restaurant._id }).populate('restaurant').populate('user');
+        // console.log("Fetched Orders:", orders)
         return res.status(200).json({
             success: true,
 
@@ -146,9 +147,11 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
             });
         }
         order.status = status;
+        // console.log(order.status)
         await order.save();
         return res.status(200).json({
             success: true,
+            status:order.status,
             message: "Order status updated successfully"
         });
 
