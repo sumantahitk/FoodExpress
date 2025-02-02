@@ -1,7 +1,7 @@
 import express from "express";
 import { checkAuth, forgotPassword, login, logout, resetPassword, signup, updateProfile, verifyEmail } from "../controller/user.controller";
 import { isAuthenticated } from "../middlewares/isAuthenticated";
-
+import upload from "../middlewares/multer"
 
 const router = express.Router();
 
@@ -12,7 +12,7 @@ router.route("/logout").post(logout as any);
 router.route("/verify-email").post(verifyEmail as any);
 router.route("/forgot-password").post(forgotPassword as any);
 router.route("/reset-password/:token").post(resetPassword as any);
-router.route("/profile/update").put(isAuthenticated as any,updateProfile as any);
+router.route("/profile/update").put(isAuthenticated as any,upload.single('profilePicture'),updateProfile as any);
 
 
 

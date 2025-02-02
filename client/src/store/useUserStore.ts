@@ -165,21 +165,56 @@ export const useUserStore = create<UserState>()(persist((set) => ({
         }
     },
     updateProfile:async(input:any)=>{
-        try{
-            set({loading:true})
-            const response = await axios.put(`${API_END_POINT}/profile/update`,{input},{
-                headers:{
-                    'Content-Type':'application/json'
-                }
+        // try{
+        //     set({loading:true})
+        //     const response = await axios.put(`${API_END_POINT}/profile/update`,{input},{
+        //         headers:{
+        //             'Content-Type':'application/json'
+        //         }
+        //     });
+        //     if(response.data.success){
+        //         toast.success(response.data.message);
+        //         set({loading:false,user:response.data.user,isAuthenticated:true})
+        //     }
+        // }catch(error:any){
+        //     set({loading:false});
+        //     toast.error(error.response.data.message)
+        // }
+
+        try {
+           
+    
+            // Create FormData object
+            const formData = new FormData();
+    
+            // Append fields to FormData
+            Object.keys(input).forEach((key) => {
+                // if (input[key] instanceof File) {
+                //     console.log(`${key}: File exists`);
+                // } else {
+                //     console.log(`${key}: No file`);
+                // }
+                formData.append(key, input[key]);
             });
-            if(response.data.success){
+    
+            // Make the API call
+            const response = await axios.put(`${API_END_POINT}/profile/update`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+    
+            if (response.data.success) {
                 toast.success(response.data.message);
-                set({loading:false,user:response.data.user,isAuthenticated:true})
+                set({ user: response.data.user, isAuthenticated: true });
             }
-        }catch(error:any){
-            set({loading:false});
-            toast.error(error.response.data.message)
+        } catch (error: any) {
+          
+            toast.error(error.response?.data?.message || 'Failed to update profile');
+            console.error(error);
         }
+        
+        
     }
 
 }), {

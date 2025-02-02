@@ -6,6 +6,7 @@ import cloudinary from "../utils/cloudnary";
 import { generateVerificationCode } from "../utils/generateVerificationToken";
 import { generateToken } from "../utils/generateToken";
 import { sendPasswordRsetEmail, sendResetSuccessEmail, sendverificationEmail, sendWelcomeEmail } from "../mailtrap/email";
+import uploadImageOnCloudinary from "../utils/imageUpload";
 
 export const signup = async (req: Request, res: Response) => {
     try {
@@ -231,25 +232,60 @@ export const checkAuth = async (req: Request, res: Response) => {
     }
 }
 
+// export const updateProfile = async (req: Request, res: Response) => {
+//     try {
+//         const userId = req.id;
+//         const { fullname, email,contact, address, city, country } = req.body;
+//         const file=(req.file)
+       
+// const imageUrl = await uploadImageOnCloudinary(file as Express.Multer.File);
+//         const updatedData = { fullname, email,contact, address, city, country ,profilePicture:imageUrl||file};
+//         // console.log("update",updateProfile);
+
+//         const user = await User.findByIdAndUpdate(userId, updatedData, { new: true }).select("-password");
+
+//         return res.status(200).json({
+//             success: true,
+//             message: "Profile updated successfully",
+//             user
+//         })
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).json({ message: "Internal server error" })
+//     }
+// }
+
 export const updateProfile = async (req: Request, res: Response) => {
     try {
         const userId = req.id;
-        const { fullname, email, address, city, country, profilePicture } = req.body;
-        let cloudResponse: any;
+        const { fullname, email, contact, address, city, country } = req.body;
+        const file = req.file;
 
-        cloudResponse = await cloudinary.uploader.upload(profilePicture);
+        // Check if a new file (image) is provided, if yes, upload it to Cloudinary
+        let imageUrl: string | undefined = undefined;
+        if (file) {
+            imageUrl = await uploadImageOnCloudinary(file as Express.Multer.File);
+        }
 
-        const updatedData = { fullname, email, address, city, country, profilePicture };
+        // Prepare the updated data object
+        const updatedData: { [key: string]: any } = { fullname, email, contact, address, city, country };
 
+        // If a new image is provided, add the profilePicture field to the updatedData object
+        if (imageUrl) {
+            updatedData.profilePicture = imageUrl;
+        }
+
+        // Update the user profile in the database
         const user = await User.findByIdAndUpdate(userId, updatedData, { new: true }).select("-password");
 
         return res.status(200).json({
             success: true,
             message: "Profile updated successfully",
             user
-        })
+        });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: "Internal server error" })
+        return res.status(500).json({ message: "Internal server error" });
     }
-}
+};
+

@@ -1,48 +1,68 @@
 import { Avatar } from "@radix-ui/react-avatar";
 import { AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Loader2, LocateIcon, Mail, MapPin, MapPinHouse, MapPinnedIcon, Phone, Plus } from "lucide-react";
+import { Loader2, LocateIcon, Mail, MapPin,  MapPinnedIcon, Phone, Plus } from "lucide-react";
 import { FormEvent, useRef, useState } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
+import { useUserStore } from "@/store/useUserStore";
 
 
 const Profile = () => {
     const imageRef = useRef<HTMLInputElement | null>(null);
+    const {user,updateProfile}=useUserStore();
+    const [isLoading,setIsLoading]=useState<boolean>(false);
     const [profileData, setProfileData] = useState({
-        fullname: "",
-        email: "",
-        phone: "",
-        address: "",
-        city: "",
-        country: "",
-        profilePicture: "",
+        fullname: user?.fullname||"",
+        email: user?.email||"",
+        phone: user?.contact||"",
+        address: user?.address||"",
+        city: user?.city||"",
+        country: user?.country||"",
+        profilePicture: user?.profilePicture||"",
 
     })
-    const [selectedDp, setSelectedDp] = useState<string>("");
-    const loading = false;
+    const [selectedDp, setSelectedDp] = useState<string>(profileData?.profilePicture||"");
+    
     const fileChangeHandeler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // const file = e.target.files?.[0];
+        // console.log(file);
+        // if (file) {
+        //     const reader = new FileReader();
+        //     reader.onloadend = () => {
+        //         const result = reader.result as string;
+        //         setSelectedDp(result);
+        //         setProfileData((prevData) => ({
+        //             ...prevData, profilePicture: result
+        //         }))
+        //     };
+        //     reader.readAsDataURL(file);
+        // }
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const result = reader.result as string;
-                setSelectedDp(result);
-                setProfileData((prevData) => ({
-                    ...prevData, profilePicture: result
-                }))
-            };
-            reader.readAsDataURL(file);
+            setSelectedDp(URL.createObjectURL(file)); // Set the preview image
+            setProfileData((prevData:any) => ({
+                ...prevData,
+                profilePicture: file // Store the file object for FormData
+            }));
         }
+        
     }
     const changeHandeler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setProfileData({ ...profileData, [name]: value })
     }
-    const updateProfileHandler = (e: FormEvent<HTMLFormElement>) => {
+    const updateProfileHandler = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // console.log(profileData);
-        // api implementation
+        try{
+            setIsLoading(true);
+            await updateProfile(profileData);
+            setIsLoading(false);
+        }catch(error){
+            setIsLoading(false);
+            console.log(error);
+        }
     }
     return (
         <form onSubmit={updateProfileHandler} className="max-w-7xl mx-auto my-5">
@@ -84,6 +104,7 @@ const Profile = () => {
                         */}
                         <h4 className=" text-left text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ml-0">Email</h4>
                         <input
+                        disabled
                             name="email"
                             value={profileData.email}
                             onChange={changeHandeler}
@@ -147,7 +168,7 @@ const Profile = () => {
             </div>
             <div className="text-center">
                 {
-                    loading ? (
+                    isLoading ? (
                         <Button disabled className="bg-orange hover:bg-hoverOrange"><Loader2 className="animate-spin mr-2 w-4 h-4" />Please Wait</Button>
                     ) :
                         (

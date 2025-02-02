@@ -168,7 +168,7 @@ export const searchRestaurant = async (req: Request, res: Response) => {
         const selectedCuisines = (req.query.selectedCuisines as string || '').split(',').filter(cuisine => cuisine);
 
         const query: any = {};
-
+        // console.log(searchText,searchQuery,selectedCuisines);
         //basic search based on searchText(name,city,country)
         if (searchText) {
             query.$or = [
@@ -182,7 +182,7 @@ export const searchRestaurant = async (req: Request, res: Response) => {
         //filter on the basis of searchQuery
         if (searchQuery) {
             query.$or = [
-                { restaurantName: { $regex: searchText, $options: 'i' } },
+                { restaurantName: { $regex: searchQuery, $options: 'i' } },
 
                 { cuisines: { $regex: searchQuery, $options: 'i' } }
 
@@ -211,11 +211,11 @@ export const getSingleRestaurant = async (req: Request, res: Response) => {
     try {
         // console.log("hi")
         const restaurantId = req.params.id;
-        const restaurant = (await Restaurant.findById(restaurantId)).populate({
+        const restaurant = await Restaurant.findById(restaurantId).populate({
             path: 'menus',
             options: {sort:{ createdAt: -1 }}
         });
-          console.log(restaurant)
+        //   console.log(restaurant)
         if (!restaurant) {
             return res.status(404).json({
                 success: false,
